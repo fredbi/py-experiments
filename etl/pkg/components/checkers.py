@@ -153,6 +153,7 @@ class ContentChecker(interface.Pipable):
             )
 
         # all checks are concatenated horizontally, valid lines are excluded from the final report
+        # only valid lines are included in the result, save when the policy is "IGNORE".
         if action_on_error in (policy.ActionOnIssue.SKIP, policy.ActionOnIssue.FAIL):
             result = result.dropna(how="any", subset=validation_flag_columns)
 

@@ -69,7 +69,7 @@ class TestContentChecker(unittest.TestCase):
         self.assertTrue("etl_validate_nop_x_error" in report_columns)
 
     def test_with_multiple_validations(self):
-        """Exercise the checker pipe with several validators"""
+        """Exercise the checker pipe with several validators, using a SKIP policy"""
 
         test_case = self.make_frame()
         input_df = ddf.from_pandas(test_case, 2)
@@ -88,8 +88,23 @@ class TestContentChecker(unittest.TestCase):
         # TODO: document exec graph
         result, report = ddf.compute(output_df, report_df)
 
-        LOGGER.info("result: %s", result)
-        LOGGER.info("report: %s", report)
+        self.assertEqual(result.index.size, 1)
+        result_columns = list(result.columns.values)
+        for input_column in test_case.columns:
+            self.assertTrue(input_column in result_columns)
+
+        self.assertTrue("etl_validate_index_x" in result_columns)
+        self.assertTrue("etl_validate_nop_y" in result_columns)
+
+        report_columns = list(report.columns.values)
+        self.assertEqual(report.index.size, test_case.index.size - 1)
+        for report_column in test_case.columns:
+            self.assertTrue(report_column in report_columns)
+
+        self.assertTrue("etl_validate_index_x" in report_columns)
+        self.assertTrue("etl_validate_index_x_error" in report_columns)
+        self.assertTrue("etl_validate_nop_y" in report_columns)
+        self.assertTrue("etl_validate_nop_y_error" in report_columns)
 
     def nop_validator(self) -> Tuple[validators.SeriesValidator, str]:
         """A validator that just returns true"""

@@ -7,7 +7,7 @@ from __future__ import annotations
 __author__ = "fredbi"
 
 import re
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Tuple
 
 from dask import dataframe as ddf
 
@@ -21,7 +21,7 @@ from etl.pkg.dataframe import DataFrame, Series
 SeriesValidator = Callable[[Series], DataFrame]
 
 
-class FieldsValidator(Dict[str, SeriesValidator]):
+class FieldsValidator(Dict[str, Tuple[SeriesValidator,str]]):
     """
     FieldsValidator knows how to distribute validators from a dictionary of fields.
 
@@ -32,7 +32,7 @@ class FieldsValidator(Dict[str, SeriesValidator]):
     def __init__(self, *args):
         super().__init__(*args)
 
-    def get_field_validator(self, field: str) -> SeriesValidator:
+    def get_field_validator(self, field: str) -> [SeriesValidator,str]:
         """
         get_field_validator returns the validator for a given field name.
 
@@ -42,19 +42,19 @@ class FieldsValidator(Dict[str, SeriesValidator]):
         Raises:
             UndeclaredField: raise d if the field is not declared in the dictionary
 
-        TODO(fred): return Tupe with validator's name.
+        TODO(fred): return Tuple with validator's name.
 
         Returns:
             SeriesValidator: a SeriesValidator function
         """
-        validator = super().get(field)
+        validator,name = super().get(field)
         if validator is None:
             raise exceptions.UndeclaredFieldError
 
-        return validator
+        return validator,name
 
 
-def regexp_validator(regexp: re.Pattern, **kwargs) -> SeriesValidator:
+def regexp_validator(regexp: re.Pattern, **kwargs) -> Tuple[SeriesValidator,str]:
     """
     regexp_validator returns a function that checks that the inît string value
     matches a regexp, using the fullmatch operator on the first column of the dataframe.
@@ -71,21 +71,21 @@ def regexp_validator(regexp: re.Pattern, **kwargs) -> SeriesValidator:
             f"{input_series.name}_match",
         )
 
-    return validator
+    return validator,"regexp"
 
 
-def na_validator() -> SeriesValidator:
+def na_validator() -> Tuple[SeriesValidator,str]:
     """na_validators checks for N/A values in the input series"""
 
     def validator(input_series: Series) -> DataFrame:
         return input_series.isna().rename(f"{input_series.name}_na")
 
-    return validator
+    return validator,"na"
 
 
 def minmax_validator(
     minimum: Any, maximum: Any, inclusive: str = "both"
-) -> SeriesValidator:
+) -> Tuple[SeriesValidator,str]:
     """minmax_validator returns a function that checks that the values
     of the input series are within the (min,max) boundaries.
 
@@ -101,12 +101,13 @@ def minmax_validator(
             f"{input_series.name}_between"
         )
 
-    return validator
+    return validator,"minmax"
 
 
-def date_validator(date_format="%Y-%M-%d", **kwargs) -> SeriesValidator:
+def date_validator(date_format="%Y-%M-%d", **kwargs) -> Tuple[SeriesValidator,str]:
     """date_validator returns a function that validates a date from
     a string, given a date format.
+    
     The default is the ISO date format YYYY-MM-DD.
     """
 
@@ -118,4 +119,4 @@ def date_validator(date_format="%Y-%M-%d", **kwargs) -> SeriesValidator:
             **kwargs,
         ).notnull()
 
-    return validator
+    return validator,"date"
