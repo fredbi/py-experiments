@@ -1,0 +1,15 @@
+log:
+  level: info
+trace: ~
+metrics: ~
+
+etl:
+  defaults:
+    policy: ~
+  jobs:
+    job1:
+      policy:
+
+api: ~
+
+databases: ~
