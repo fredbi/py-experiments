@@ -1,0 +1,4 @@
+dask==2023.5.0
+dynaconf==3.2.1
+pandas==2.0.3
+structlog==23.1.0
