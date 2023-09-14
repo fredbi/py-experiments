@@ -86,7 +86,7 @@
 </span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;fredbi&quot;</span>
 </span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a>
 </span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="kn">import</span> <span class="nn">re</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span>
 </span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a>
 </span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a><span class="kn">from</span> <span class="nn">dask</span> <span class="kn">import</span> <span class="n">dataframe</span> <span class="k">as</span> <span class="n">ddf</span>
 </span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a>
@@ -100,7 +100,7 @@
 </span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a><span class="n">SeriesValidator</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Series</span><span class="p">],</span> <span class="n">DataFrame</span><span class="p">]</span>
 </span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a>
 </span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a>
-</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a><span class="k">class</span> <span class="nc">FieldsValidator</span><span class="p">(</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SeriesValidator</span><span class="p">]):</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a><span class="k">class</span> <span class="nc">FieldsValidator</span><span class="p">(</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SeriesValidator</span><span class="p">,</span><span class="nb">str</span><span class="p">]]):</span>
 </span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a><span class="sd">    FieldsValidator knows how to distribute validators from a dictionary of fields.</span>
 </span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a>
@@ -111,7 +111,7 @@
 </span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 </span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
 </span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a>
-</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>    <span class="k">def</span> <span class="nf">get_field_validator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SeriesValidator</span><span class="p">:</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>    <span class="k">def</span> <span class="nf">get_field_validator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">SeriesValidator</span><span class="p">,</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="sd">        get_field_validator returns the validator for a given field name.</span>
 </span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>
@@ -121,19 +121,19 @@
 </span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="sd">        Raises:</span>
 </span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="sd">            UndeclaredField: raise d if the field is not declared in the dictionary</span>
 </span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>
-</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="sd">        TODO(fred): return Tupe with validator&#39;s name.</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="sd">        TODO(fred): return Tuple with validator&#39;s name.</span>
 </span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>
 </span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="sd">        Returns:</span>
 </span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="sd">            SeriesValidator: a SeriesValidator function</span>
 </span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>        <span class="n">validator</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>        <span class="n">validator</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
 </span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>        <span class="k">if</span> <span class="n">validator</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>            <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UndeclaredFieldError</span>
 </span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>
-</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>        <span class="k">return</span> <span class="n">validator</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>        <span class="k">return</span> <span class="n">validator</span><span class="p">,</span><span class="n">name</span>
 </span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>
 </span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>
-</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a><span class="k">def</span> <span class="nf">regexp_validator</span><span class="p">(</span><span class="n">regexp</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SeriesValidator</span><span class="p">:</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a><span class="k">def</span> <span class="nf">regexp_validator</span><span class="p">(</span><span class="n">regexp</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SeriesValidator</span><span class="p">,</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="sd">    regexp_validator returns a function that checks that the inît string value</span>
 </span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="sd">    matches a regexp, using the fullmatch operator on the first column of the dataframe.</span>
@@ -150,21 +150,21 @@
 </span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">input_series</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_match&quot;</span><span class="p">,</span>
 </span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>        <span class="p">)</span>
 </span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>    <span class="k">return</span> <span class="n">validator</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>    <span class="k">return</span> <span class="n">validator</span><span class="p">,</span><span class="s2">&quot;regexp&quot;</span>
 </span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>
 </span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a><span class="k">def</span> <span class="nf">na_validator</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">SeriesValidator</span><span class="p">:</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a><span class="k">def</span> <span class="nf">na_validator</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SeriesValidator</span><span class="p">,</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;na_validators checks for N/A values in the input series&quot;&quot;&quot;</span>
 </span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>
 </span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>    <span class="k">def</span> <span class="nf">validator</span><span class="p">(</span><span class="n">input_series</span><span class="p">:</span> <span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
 </span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>        <span class="k">return</span> <span class="n">input_series</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">input_series</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_na&quot;</span><span class="p">)</span>
 </span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>
-</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>    <span class="k">return</span> <span class="n">validator</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>    <span class="k">return</span> <span class="n">validator</span><span class="p">,</span><span class="s2">&quot;na&quot;</span>
 </span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>
 </span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>
 </span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a><span class="k">def</span> <span class="nf">minmax_validator</span><span class="p">(</span>
 </span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>    <span class="n">minimum</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">maximum</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">inclusive</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;both&quot;</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SeriesValidator</span><span class="p">:</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SeriesValidator</span><span class="p">,</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;minmax_validator returns a function that checks that the values</span>
 </span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a><span class="sd">    of the input series are within the (min,max) boundaries.</span>
 </span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>
@@ -180,24 +180,25 @@
 </span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">input_series</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_between&quot;</span>
 </span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>        <span class="p">)</span>
 </span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>
-</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>    <span class="k">return</span> <span class="n">validator</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>    <span class="k">return</span> <span class="n">validator</span><span class="p">,</span><span class="s2">&quot;minmax&quot;</span>
 </span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>
 </span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>
-</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a><span class="k">def</span> <span class="nf">date_validator</span><span class="p">(</span><span class="n">date_format</span><span class="o">=</span><span class="s2">&quot;%Y-%M-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SeriesValidator</span><span class="p">:</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a><span class="k">def</span> <span class="nf">date_validator</span><span class="p">(</span><span class="n">date_format</span><span class="o">=</span><span class="s2">&quot;%Y-%M-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SeriesValidator</span><span class="p">,</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;date_validator returns a function that validates a date from</span>
 </span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a><span class="sd">    a string, given a date format.</span>
-</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a><span class="sd">    The default is the ISO date format YYYY-MM-DD.</span>
-</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>
-</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>    <span class="k">def</span> <span class="nf">validator</span><span class="p">(</span><span class="n">input_series</span><span class="p">:</span> <span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
-</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>        <span class="k">return</span> <span class="n">ddf</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
-</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>            <span class="n">input_series</span><span class="p">,</span>
-</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>            <span class="nb">format</span><span class="o">=</span><span class="n">date_format</span><span class="p">,</span>
-</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>            <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
-</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>        <span class="p">)</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span>
-</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>
-</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>    <span class="k">return</span> <span class="n">validator</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a><span class="sd">    </span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a><span class="sd">    The default is the ISO date format YYYY-MM-DD.</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>    <span class="k">def</span> <span class="nf">validator</span><span class="p">(</span><span class="n">input_series</span><span class="p">:</span> <span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>        <span class="k">return</span> <span class="n">ddf</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>            <span class="n">input_series</span><span class="p">,</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>            <span class="nb">format</span><span class="o">=</span><span class="n">date_format</span><span class="p">,</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>            <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>        <span class="p">)</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>    <span class="k">return</span> <span class="n">validator</span><span class="p">,</span><span class="s2">&quot;date&quot;</span>
 </span></pre></div>
 
 
@@ -219,13 +220,13 @@
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">FieldsValidator</span><wbr>(<span class="base">typing.Dict[str, typing.Callable[[dask.dataframe.core.Series], dask.dataframe.core.DataFrame]]</span>):
+    <span class="name">FieldsValidator</span><wbr>(<span class="base">typing.Dict[str, typing.Tuple[typing.Callable[[dask.dataframe.core.Series], dask.dataframe.core.DataFrame], str]]</span>):
 
                 <label class="view-source-button" for="FieldsValidator-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#FieldsValidator"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="FieldsValidator-25"><a href="#FieldsValidator-25"><span class="linenos">25</span></a><span class="k">class</span> <span class="nc">FieldsValidator</span><span class="p">(</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SeriesValidator</span><span class="p">]):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="FieldsValidator-25"><a href="#FieldsValidator-25"><span class="linenos">25</span></a><span class="k">class</span> <span class="nc">FieldsValidator</span><span class="p">(</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SeriesValidator</span><span class="p">,</span><span class="nb">str</span><span class="p">]]):</span>
 </span><span id="FieldsValidator-26"><a href="#FieldsValidator-26"><span class="linenos">26</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="FieldsValidator-27"><a href="#FieldsValidator-27"><span class="linenos">27</span></a><span class="sd">    FieldsValidator knows how to distribute validators from a dictionary of fields.</span>
 </span><span id="FieldsValidator-28"><a href="#FieldsValidator-28"><span class="linenos">28</span></a>
@@ -236,7 +237,7 @@
 </span><span id="FieldsValidator-33"><a href="#FieldsValidator-33"><span class="linenos">33</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 </span><span id="FieldsValidator-34"><a href="#FieldsValidator-34"><span class="linenos">34</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
 </span><span id="FieldsValidator-35"><a href="#FieldsValidator-35"><span class="linenos">35</span></a>
-</span><span id="FieldsValidator-36"><a href="#FieldsValidator-36"><span class="linenos">36</span></a>    <span class="k">def</span> <span class="nf">get_field_validator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SeriesValidator</span><span class="p">:</span>
+</span><span id="FieldsValidator-36"><a href="#FieldsValidator-36"><span class="linenos">36</span></a>    <span class="k">def</span> <span class="nf">get_field_validator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">SeriesValidator</span><span class="p">,</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="FieldsValidator-37"><a href="#FieldsValidator-37"><span class="linenos">37</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="FieldsValidator-38"><a href="#FieldsValidator-38"><span class="linenos">38</span></a><span class="sd">        get_field_validator returns the validator for a given field name.</span>
 </span><span id="FieldsValidator-39"><a href="#FieldsValidator-39"><span class="linenos">39</span></a>
@@ -246,16 +247,16 @@
 </span><span id="FieldsValidator-43"><a href="#FieldsValidator-43"><span class="linenos">43</span></a><span class="sd">        Raises:</span>
 </span><span id="FieldsValidator-44"><a href="#FieldsValidator-44"><span class="linenos">44</span></a><span class="sd">            UndeclaredField: raise d if the field is not declared in the dictionary</span>
 </span><span id="FieldsValidator-45"><a href="#FieldsValidator-45"><span class="linenos">45</span></a>
-</span><span id="FieldsValidator-46"><a href="#FieldsValidator-46"><span class="linenos">46</span></a><span class="sd">        TODO(fred): return Tupe with validator&#39;s name.</span>
+</span><span id="FieldsValidator-46"><a href="#FieldsValidator-46"><span class="linenos">46</span></a><span class="sd">        TODO(fred): return Tuple with validator&#39;s name.</span>
 </span><span id="FieldsValidator-47"><a href="#FieldsValidator-47"><span class="linenos">47</span></a>
 </span><span id="FieldsValidator-48"><a href="#FieldsValidator-48"><span class="linenos">48</span></a><span class="sd">        Returns:</span>
 </span><span id="FieldsValidator-49"><a href="#FieldsValidator-49"><span class="linenos">49</span></a><span class="sd">            SeriesValidator: a SeriesValidator function</span>
 </span><span id="FieldsValidator-50"><a href="#FieldsValidator-50"><span class="linenos">50</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="FieldsValidator-51"><a href="#FieldsValidator-51"><span class="linenos">51</span></a>        <span class="n">validator</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+</span><span id="FieldsValidator-51"><a href="#FieldsValidator-51"><span class="linenos">51</span></a>        <span class="n">validator</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
 </span><span id="FieldsValidator-52"><a href="#FieldsValidator-52"><span class="linenos">52</span></a>        <span class="k">if</span> <span class="n">validator</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="FieldsValidator-53"><a href="#FieldsValidator-53"><span class="linenos">53</span></a>            <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UndeclaredFieldError</span>
 </span><span id="FieldsValidator-54"><a href="#FieldsValidator-54"><span class="linenos">54</span></a>
-</span><span id="FieldsValidator-55"><a href="#FieldsValidator-55"><span class="linenos">55</span></a>        <span class="k">return</span> <span class="n">validator</span>
+</span><span id="FieldsValidator-55"><a href="#FieldsValidator-55"><span class="linenos">55</span></a>        <span class="k">return</span> <span class="n">validator</span><span class="p">,</span><span class="n">name</span>
 </span></pre></div>
 
 
@@ -271,13 +272,13 @@
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">get_field_validator</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">field</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="n">Callable</span><span class="p">[[</span><span class="n">dask</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span> <span class="n">dask</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>:</span></span>
+        <span class="name">get_field_validator</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">field</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> [typing.Callable[[dask.dataframe.core.Series], dask.dataframe.core.DataFrame], &lt;class &#x27;str&#x27;&gt;]:</span></span>
 
                 <label class="view-source-button" for="FieldsValidator.get_field_validator-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#FieldsValidator.get_field_validator"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="FieldsValidator.get_field_validator-36"><a href="#FieldsValidator.get_field_validator-36"><span class="linenos">36</span></a>    <span class="k">def</span> <span class="nf">get_field_validator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SeriesValidator</span><span class="p">:</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="FieldsValidator.get_field_validator-36"><a href="#FieldsValidator.get_field_validator-36"><span class="linenos">36</span></a>    <span class="k">def</span> <span class="nf">get_field_validator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">SeriesValidator</span><span class="p">,</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="FieldsValidator.get_field_validator-37"><a href="#FieldsValidator.get_field_validator-37"><span class="linenos">37</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="FieldsValidator.get_field_validator-38"><a href="#FieldsValidator.get_field_validator-38"><span class="linenos">38</span></a><span class="sd">        get_field_validator returns the validator for a given field name.</span>
 </span><span id="FieldsValidator.get_field_validator-39"><a href="#FieldsValidator.get_field_validator-39"><span class="linenos">39</span></a>
@@ -287,16 +288,16 @@
 </span><span id="FieldsValidator.get_field_validator-43"><a href="#FieldsValidator.get_field_validator-43"><span class="linenos">43</span></a><span class="sd">        Raises:</span>
 </span><span id="FieldsValidator.get_field_validator-44"><a href="#FieldsValidator.get_field_validator-44"><span class="linenos">44</span></a><span class="sd">            UndeclaredField: raise d if the field is not declared in the dictionary</span>
 </span><span id="FieldsValidator.get_field_validator-45"><a href="#FieldsValidator.get_field_validator-45"><span class="linenos">45</span></a>
-</span><span id="FieldsValidator.get_field_validator-46"><a href="#FieldsValidator.get_field_validator-46"><span class="linenos">46</span></a><span class="sd">        TODO(fred): return Tupe with validator&#39;s name.</span>
+</span><span id="FieldsValidator.get_field_validator-46"><a href="#FieldsValidator.get_field_validator-46"><span class="linenos">46</span></a><span class="sd">        TODO(fred): return Tuple with validator&#39;s name.</span>
 </span><span id="FieldsValidator.get_field_validator-47"><a href="#FieldsValidator.get_field_validator-47"><span class="linenos">47</span></a>
 </span><span id="FieldsValidator.get_field_validator-48"><a href="#FieldsValidator.get_field_validator-48"><span class="linenos">48</span></a><span class="sd">        Returns:</span>
 </span><span id="FieldsValidator.get_field_validator-49"><a href="#FieldsValidator.get_field_validator-49"><span class="linenos">49</span></a><span class="sd">            SeriesValidator: a SeriesValidator function</span>
 </span><span id="FieldsValidator.get_field_validator-50"><a href="#FieldsValidator.get_field_validator-50"><span class="linenos">50</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="FieldsValidator.get_field_validator-51"><a href="#FieldsValidator.get_field_validator-51"><span class="linenos">51</span></a>        <span class="n">validator</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+</span><span id="FieldsValidator.get_field_validator-51"><a href="#FieldsValidator.get_field_validator-51"><span class="linenos">51</span></a>        <span class="n">validator</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
 </span><span id="FieldsValidator.get_field_validator-52"><a href="#FieldsValidator.get_field_validator-52"><span class="linenos">52</span></a>        <span class="k">if</span> <span class="n">validator</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="FieldsValidator.get_field_validator-53"><a href="#FieldsValidator.get_field_validator-53"><span class="linenos">53</span></a>            <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UndeclaredFieldError</span>
 </span><span id="FieldsValidator.get_field_validator-54"><a href="#FieldsValidator.get_field_validator-54"><span class="linenos">54</span></a>
-</span><span id="FieldsValidator.get_field_validator-55"><a href="#FieldsValidator.get_field_validator-55"><span class="linenos">55</span></a>        <span class="k">return</span> <span class="n">validator</span>
+</span><span id="FieldsValidator.get_field_validator-55"><a href="#FieldsValidator.get_field_validator-55"><span class="linenos">55</span></a>        <span class="k">return</span> <span class="n">validator</span><span class="p">,</span><span class="n">name</span>
 </span></pre></div>
 
 
@@ -308,7 +309,7 @@
 <p>Raises:
     UndeclaredField: raise d if the field is not declared in the dictionary</p>
 
-<p>TODO(fred): return Tupe with validator's name.</p>
+<p>TODO(fred): return Tuple with validator's name.</p>
 
 <p>Returns:
     SeriesValidator: a SeriesValidator function</p>
@@ -341,13 +342,13 @@
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">regexp_validator</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">regexp</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span>,</span><span class="param">	<span class="o">**</span><span class="n">kwargs</span></span><span class="return-annotation">) -> <span class="n">Callable</span><span class="p">[[</span><span class="n">dask</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span> <span class="n">dask</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>:</span></span>
+        <span class="name">regexp_validator</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">regexp</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span>,</span><span class="param">	<span class="o">**</span><span class="n">kwargs</span></span><span class="return-annotation">) -> <span class="n">Tuple</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">dask</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span> <span class="n">dask</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span> <span class="nb">str</span><span class="p">]</span>:</span></span>
 
                 <label class="view-source-button" for="regexp_validator-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#regexp_validator"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="regexp_validator-58"><a href="#regexp_validator-58"><span class="linenos">58</span></a><span class="k">def</span> <span class="nf">regexp_validator</span><span class="p">(</span><span class="n">regexp</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SeriesValidator</span><span class="p">:</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="regexp_validator-58"><a href="#regexp_validator-58"><span class="linenos">58</span></a><span class="k">def</span> <span class="nf">regexp_validator</span><span class="p">(</span><span class="n">regexp</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SeriesValidator</span><span class="p">,</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="regexp_validator-59"><a href="#regexp_validator-59"><span class="linenos">59</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="regexp_validator-60"><a href="#regexp_validator-60"><span class="linenos">60</span></a><span class="sd">    regexp_validator returns a function that checks that the inît string value</span>
 </span><span id="regexp_validator-61"><a href="#regexp_validator-61"><span class="linenos">61</span></a><span class="sd">    matches a regexp, using the fullmatch operator on the first column of the dataframe.</span>
@@ -364,7 +365,7 @@
 </span><span id="regexp_validator-72"><a href="#regexp_validator-72"><span class="linenos">72</span></a>            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">input_series</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_match&quot;</span><span class="p">,</span>
 </span><span id="regexp_validator-73"><a href="#regexp_validator-73"><span class="linenos">73</span></a>        <span class="p">)</span>
 </span><span id="regexp_validator-74"><a href="#regexp_validator-74"><span class="linenos">74</span></a>
-</span><span id="regexp_validator-75"><a href="#regexp_validator-75"><span class="linenos">75</span></a>    <span class="k">return</span> <span class="n">validator</span>
+</span><span id="regexp_validator-75"><a href="#regexp_validator-75"><span class="linenos">75</span></a>    <span class="k">return</span> <span class="n">validator</span><span class="p">,</span><span class="s2">&quot;regexp&quot;</span>
 </span></pre></div>
 
 
@@ -385,19 +386,19 @@ matches a regexp, using the fullmatch operator on the first column of the datafr
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">na_validator</span><span class="signature pdoc-code condensed">(<span class="return-annotation">) -> <span class="n">Callable</span><span class="p">[[</span><span class="n">dask</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span> <span class="n">dask</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>:</span></span>
+        <span class="name">na_validator</span><span class="signature pdoc-code multiline">(<span class="return-annotation">) -> <span class="n">Tuple</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">dask</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span> <span class="n">dask</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span> <span class="nb">str</span><span class="p">]</span>:</span></span>
 
                 <label class="view-source-button" for="na_validator-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#na_validator"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="na_validator-78"><a href="#na_validator-78"><span class="linenos">78</span></a><span class="k">def</span> <span class="nf">na_validator</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">SeriesValidator</span><span class="p">:</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="na_validator-78"><a href="#na_validator-78"><span class="linenos">78</span></a><span class="k">def</span> <span class="nf">na_validator</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SeriesValidator</span><span class="p">,</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="na_validator-79"><a href="#na_validator-79"><span class="linenos">79</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;na_validators checks for N/A values in the input series&quot;&quot;&quot;</span>
 </span><span id="na_validator-80"><a href="#na_validator-80"><span class="linenos">80</span></a>
 </span><span id="na_validator-81"><a href="#na_validator-81"><span class="linenos">81</span></a>    <span class="k">def</span> <span class="nf">validator</span><span class="p">(</span><span class="n">input_series</span><span class="p">:</span> <span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
 </span><span id="na_validator-82"><a href="#na_validator-82"><span class="linenos">82</span></a>        <span class="k">return</span> <span class="n">input_series</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">input_series</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_na&quot;</span><span class="p">)</span>
 </span><span id="na_validator-83"><a href="#na_validator-83"><span class="linenos">83</span></a>
-</span><span id="na_validator-84"><a href="#na_validator-84"><span class="linenos">84</span></a>    <span class="k">return</span> <span class="n">validator</span>
+</span><span id="na_validator-84"><a href="#na_validator-84"><span class="linenos">84</span></a>    <span class="k">return</span> <span class="n">validator</span><span class="p">,</span><span class="s2">&quot;na&quot;</span>
 </span></pre></div>
 
 
@@ -411,7 +412,7 @@ matches a regexp, using the fullmatch operator on the first column of the datafr
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">minmax_validator</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">minimum</span><span class="p">:</span> <span class="n">Any</span>,</span><span class="param">	<span class="n">maximum</span><span class="p">:</span> <span class="n">Any</span>,</span><span class="param">	<span class="n">inclusive</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;both&#39;</span></span><span class="return-annotation">) -> <span class="n">Callable</span><span class="p">[[</span><span class="n">dask</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span> <span class="n">dask</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>:</span></span>
+        <span class="name">minmax_validator</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">minimum</span><span class="p">:</span> <span class="n">Any</span>,</span><span class="param">	<span class="n">maximum</span><span class="p">:</span> <span class="n">Any</span>,</span><span class="param">	<span class="n">inclusive</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;both&#39;</span></span><span class="return-annotation">) -> <span class="n">Tuple</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">dask</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span> <span class="n">dask</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span> <span class="nb">str</span><span class="p">]</span>:</span></span>
 
                 <label class="view-source-button" for="minmax_validator-view-source"><span>View Source</span></label>
 
@@ -419,7 +420,7 @@ matches a regexp, using the fullmatch operator on the first column of the datafr
     <a class="headerlink" href="#minmax_validator"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="minmax_validator-87"><a href="#minmax_validator-87"><span class="linenos"> 87</span></a><span class="k">def</span> <span class="nf">minmax_validator</span><span class="p">(</span>
 </span><span id="minmax_validator-88"><a href="#minmax_validator-88"><span class="linenos"> 88</span></a>    <span class="n">minimum</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">maximum</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">inclusive</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;both&quot;</span>
-</span><span id="minmax_validator-89"><a href="#minmax_validator-89"><span class="linenos"> 89</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SeriesValidator</span><span class="p">:</span>
+</span><span id="minmax_validator-89"><a href="#minmax_validator-89"><span class="linenos"> 89</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SeriesValidator</span><span class="p">,</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="minmax_validator-90"><a href="#minmax_validator-90"><span class="linenos"> 90</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;minmax_validator returns a function that checks that the values</span>
 </span><span id="minmax_validator-91"><a href="#minmax_validator-91"><span class="linenos"> 91</span></a><span class="sd">    of the input series are within the (min,max) boundaries.</span>
 </span><span id="minmax_validator-92"><a href="#minmax_validator-92"><span class="linenos"> 92</span></a>
@@ -435,7 +436,7 @@ matches a regexp, using the fullmatch operator on the first column of the datafr
 </span><span id="minmax_validator-102"><a href="#minmax_validator-102"><span class="linenos">102</span></a>            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">input_series</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_between&quot;</span>
 </span><span id="minmax_validator-103"><a href="#minmax_validator-103"><span class="linenos">103</span></a>        <span class="p">)</span>
 </span><span id="minmax_validator-104"><a href="#minmax_validator-104"><span class="linenos">104</span></a>
-</span><span id="minmax_validator-105"><a href="#minmax_validator-105"><span class="linenos">105</span></a>    <span class="k">return</span> <span class="n">validator</span>
+</span><span id="minmax_validator-105"><a href="#minmax_validator-105"><span class="linenos">105</span></a>    <span class="k">return</span> <span class="n">validator</span><span class="p">,</span><span class="s2">&quot;minmax&quot;</span>
 </span></pre></div>
 
 
@@ -456,33 +457,35 @@ of the input series are within the (min,max) boundaries.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">date_validator</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">date_format</span><span class="o">=</span><span class="s1">&#39;%Y-%M-</span><span class="si">%d</span><span class="s1">&#39;</span>,</span><span class="param">	<span class="o">**</span><span class="n">kwargs</span></span><span class="return-annotation">) -> <span class="n">Callable</span><span class="p">[[</span><span class="n">dask</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span> <span class="n">dask</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>:</span></span>
+        <span class="name">date_validator</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">date_format</span><span class="o">=</span><span class="s1">&#39;%Y-%M-</span><span class="si">%d</span><span class="s1">&#39;</span>,</span><span class="param">	<span class="o">**</span><span class="n">kwargs</span></span><span class="return-annotation">) -> <span class="n">Tuple</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">dask</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span> <span class="n">dask</span><span class="o">.</span><span class="n">dataframe</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span> <span class="nb">str</span><span class="p">]</span>:</span></span>
 
                 <label class="view-source-button" for="date_validator-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#date_validator"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="date_validator-108"><a href="#date_validator-108"><span class="linenos">108</span></a><span class="k">def</span> <span class="nf">date_validator</span><span class="p">(</span><span class="n">date_format</span><span class="o">=</span><span class="s2">&quot;%Y-%M-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SeriesValidator</span><span class="p">:</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="date_validator-108"><a href="#date_validator-108"><span class="linenos">108</span></a><span class="k">def</span> <span class="nf">date_validator</span><span class="p">(</span><span class="n">date_format</span><span class="o">=</span><span class="s2">&quot;%Y-%M-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SeriesValidator</span><span class="p">,</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="date_validator-109"><a href="#date_validator-109"><span class="linenos">109</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;date_validator returns a function that validates a date from</span>
 </span><span id="date_validator-110"><a href="#date_validator-110"><span class="linenos">110</span></a><span class="sd">    a string, given a date format.</span>
-</span><span id="date_validator-111"><a href="#date_validator-111"><span class="linenos">111</span></a><span class="sd">    The default is the ISO date format YYYY-MM-DD.</span>
-</span><span id="date_validator-112"><a href="#date_validator-112"><span class="linenos">112</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="date_validator-113"><a href="#date_validator-113"><span class="linenos">113</span></a>
-</span><span id="date_validator-114"><a href="#date_validator-114"><span class="linenos">114</span></a>    <span class="k">def</span> <span class="nf">validator</span><span class="p">(</span><span class="n">input_series</span><span class="p">:</span> <span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
-</span><span id="date_validator-115"><a href="#date_validator-115"><span class="linenos">115</span></a>        <span class="k">return</span> <span class="n">ddf</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
-</span><span id="date_validator-116"><a href="#date_validator-116"><span class="linenos">116</span></a>            <span class="n">input_series</span><span class="p">,</span>
-</span><span id="date_validator-117"><a href="#date_validator-117"><span class="linenos">117</span></a>            <span class="nb">format</span><span class="o">=</span><span class="n">date_format</span><span class="p">,</span>
-</span><span id="date_validator-118"><a href="#date_validator-118"><span class="linenos">118</span></a>            <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
-</span><span id="date_validator-119"><a href="#date_validator-119"><span class="linenos">119</span></a>            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-</span><span id="date_validator-120"><a href="#date_validator-120"><span class="linenos">120</span></a>        <span class="p">)</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span>
-</span><span id="date_validator-121"><a href="#date_validator-121"><span class="linenos">121</span></a>
-</span><span id="date_validator-122"><a href="#date_validator-122"><span class="linenos">122</span></a>    <span class="k">return</span> <span class="n">validator</span>
+</span><span id="date_validator-111"><a href="#date_validator-111"><span class="linenos">111</span></a><span class="sd">    </span>
+</span><span id="date_validator-112"><a href="#date_validator-112"><span class="linenos">112</span></a><span class="sd">    The default is the ISO date format YYYY-MM-DD.</span>
+</span><span id="date_validator-113"><a href="#date_validator-113"><span class="linenos">113</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="date_validator-114"><a href="#date_validator-114"><span class="linenos">114</span></a>
+</span><span id="date_validator-115"><a href="#date_validator-115"><span class="linenos">115</span></a>    <span class="k">def</span> <span class="nf">validator</span><span class="p">(</span><span class="n">input_series</span><span class="p">:</span> <span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
+</span><span id="date_validator-116"><a href="#date_validator-116"><span class="linenos">116</span></a>        <span class="k">return</span> <span class="n">ddf</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+</span><span id="date_validator-117"><a href="#date_validator-117"><span class="linenos">117</span></a>            <span class="n">input_series</span><span class="p">,</span>
+</span><span id="date_validator-118"><a href="#date_validator-118"><span class="linenos">118</span></a>            <span class="nb">format</span><span class="o">=</span><span class="n">date_format</span><span class="p">,</span>
+</span><span id="date_validator-119"><a href="#date_validator-119"><span class="linenos">119</span></a>            <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
+</span><span id="date_validator-120"><a href="#date_validator-120"><span class="linenos">120</span></a>            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+</span><span id="date_validator-121"><a href="#date_validator-121"><span class="linenos">121</span></a>        <span class="p">)</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span>
+</span><span id="date_validator-122"><a href="#date_validator-122"><span class="linenos">122</span></a>
+</span><span id="date_validator-123"><a href="#date_validator-123"><span class="linenos">123</span></a>    <span class="k">return</span> <span class="n">validator</span><span class="p">,</span><span class="s2">&quot;date&quot;</span>
 </span></pre></div>
 
 
             <div class="docstring"><p>date_validator returns a function that validates a date from
-a string, given a date format.
-The default is the ISO date format YYYY-MM-DD.</p>
+a string, given a date format.</p>
+
+<p>The default is the ISO date format YYYY-MM-DD.</p>
 </div>
 
 
