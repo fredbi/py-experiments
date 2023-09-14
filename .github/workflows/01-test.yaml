@@ -1,0 +1,43 @@
+name: py-experiments-test
+on:
+  push:
+    tags:
+      - v*
+    branches:
+      - master
+    pull_request:
+permissions:
+  content: read
+jobs:
+  etl_test:
+    strategy:
+      matrix:
+        python_version: [3.8, 3.9, 3.10, 3.11]
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: $GITHUB_WORKSPACE
+    steps:
+      - uses: actions/setup-python@v4
+        with:
+          python-version:  ${{ matrix.python_version }} 
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pylint pytest
+          pip install -r etl/requirements.txt
+
+      - name: pylint
+        run: |
+          pylint etl || true
+
+      - name: pdoc
+        run: |
+          # TODO: use pandoc to convert HTML to markdown
+          # should be used to assert that the doc is up to date
+          pdoc etl --docformat markdown --no-browser -o docs || true
+           
+      - name: unit_tests
+        run: |
+          pytest -o log_cli=1 --log-cli-level=DEBUG
+
